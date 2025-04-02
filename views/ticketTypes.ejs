@@ -1,0 +1,111 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <div id="addForm">
+            <!--INSERT INTO ticketTypes (name, onTicket, numberOfLines, date, img, config, emailMessage-->
+            <h2>Add new ticket type</h2>
+            <form action="/panel/ticketTypes" method="POST">
+                <input type="hidden" name="action" value="add">
+                <table>
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" id="name" name="name" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="onTicket">On ticket:</label></td>
+                        <td><input type="text" id="onTicket" name="onTicket"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="numberOfLines">Number of lines:</label></td>
+                        <td><input type="number" id="numberOfLines" name="numberOfLines" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dateFrom">Date from:</label></td>
+                        <td><input type="date" id="dateFrom" name="dateFrom" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dateTo">Date to:</label></td>
+                        <td><input type="date" id="dateTo" name="dateTo" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="img">Image URL:</label></td>
+                        <td><input type="text" id="img" name="img"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dateShow">Show Date:</label></td>
+                        <td><select id="dateShow" name="dateShow">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td><label for="nameShow">Show Name:</label></td>
+                        <td><select id="nameShow" name="nameShow">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select></td>
+                    </tr>
+                    <!--tr>
+                        <td><label for="config">Config:</label></td>
+                        <td><textarea id="config" name="config"></textarea></td>
+                    </tr-->
+                    <tr>
+                        <td><label for="emailMessage">Email message:</label></td>
+                        <td><textarea id="emailMessage" name="emailMessage"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Add Ticket Type</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="tableShow">
+            <h2>Ticket Types</h2>
+            <table id="ticketTypesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>On Ticket</th>
+                        <th>Number of Lines</th>
+                        <th>Date</th>
+                        <th>Image URL</th>
+                        <th>Config</th>
+                        <th>Email Message</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% ticketTypes.forEach(function(ticketType) { %>
+                        <tr>
+                            <td><%= ticketType.id %></td>
+                            <td><%= ticketType.name %></td>
+                            <td><%= ticketType.onTicket %></td>
+                            <td><%= ticketType.numberOfLines %></td>
+                            <td><%= ticketType.date %></td>
+                            <td><img src="<%= ticketType.img %>" width="200px"></td>
+                            <td><%= ticketType.config %></td>
+                            <td><%= ticketType.emailMessage %></td>
+                            <td>
+                                <form action="/panel/ticketTypes" method="POST">
+                                    <input type="hidden" name="id" value="<%= ticketType.id %>">
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>

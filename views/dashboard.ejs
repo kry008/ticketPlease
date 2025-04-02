@@ -1,0 +1,62 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <div id="boxes">
+            <a href="#" class="box">
+                <div class="box-content">
+                    <h2>Hi, <%= user.name %></h2>
+                    <p>Last time login <%= new Date(user.lastLogin).toLocaleString() %></p>
+                </div>
+            </a>
+            <a href="/panel/checkTicket" class="box">
+                <div class="box-content">
+                    <h2>Chceck tickets</h2>
+                    <p>Via QR/Barcode</p>
+                </div>
+            </a>
+            <a href="/panel/checkTicketManual" class="box">
+                <div class="box-content">
+                    <h2>Chceck tickets</h2>
+                    <p>Manual check</p>
+                </div>
+            </a>
+            <a href="/panel/ticketTypes" class="box">
+                <div class="box-content">
+                    <h2>Add new ticket type</h2>
+                    <p>Configure new ticket type to event</p>
+                </div>
+            </a>
+            <a href="/panel/addTicketPanel" class="box">
+                <div class="box-content">
+                    <h2>Add new ticket</h2>
+                    <p>Configure new ticket to event</p>
+                </div>
+            </a>
+            <a href="/panel/ticketList" class="box">
+                <div class="box-content">
+                    <h2>Ticket list</h2>
+                    <p>With delete option</p>
+                </div>
+            </a>
+            <a href="/panel/users" class="box">
+                <div class="box-content">
+                    <h2>Users</h2>
+                    <p>Set up users</p>
+                </div>
+            </a>
+            <a href="#" class="box">
+                <div class="box-content">
+                    <h2>Settings</h2>
+                    <p>Configure system settings.</p>
+                </div>
+            </a>
+            <a href="/panel/logout" class="box">
+                <div class="box-content">
+                    <h2>Log out</h2>
+                    <p>Log out from system</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    <%- include('footer'); %>

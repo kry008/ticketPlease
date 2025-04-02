@@ -1,0 +1,32 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <div id="boxes">
+            <a href="#" class="box">
+                <div class="box-content">
+                    <h2>Hi, <%= user.name %></h2>
+                    <p>Last time login <%= new Date(user.lastLogin).toLocaleString() %></p>
+                </div>
+            </a>
+            <a href="/panel/addTicketSingle" class="box">
+                <div class="box-content">
+                    <h2>Add single ticket</h2>
+                    <p>One ticket</p>
+                </div>
+            </a>
+            <a href="#" class="box">
+                <div class="box-content">
+                    <h2>Bulk add</h2>
+                    <p>From CSV</p>
+                </div>
+            </a>
+            <a href="../panel/dashboard" class="box">
+                <div class="box-content">
+                    <h2>Return</h2>
+                    <p>to panel</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    <%- include('footer'); %>

@@ -1,0 +1,88 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <div id="addForm">
+            <h2>Add new user</h2>
+            <form action="/panel/users" method="POST">
+                <input type="hidden" name="action" value="add">
+                <table>
+                    <tr>
+                        <td><label for="login">Login:</label></td>
+                        <td><input type="text" id="login" name="login" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email:</label></td>
+                        <td><input type="email" id="email" name="email" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" id="name" name="name" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="password">Password:</label></td>
+                        <td><input type="password" id="password" name="password" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="confirmPassword">Confirm Password:</label></td>
+                        <td><input type="password" id="confirmPassword" name="confirmPassword" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="admin">Admin:</label></td>
+                        <td><select id="admin" name="admin">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Add User</button></td>
+                    </tr>
+                </table>
+            </form>
+
+        </div>
+        <div id="tableShow">
+            <h2>User list</h2>
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Login</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Admin</th>
+                        <th>Last login</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(function(user) { %>
+                        <tr>
+                            <td><%= user.login %></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.name %></td>
+                            <td><%= user.admin ? 'Yes' : 'No' %></td>
+                            <td><%= user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never' %></td>
+                            <td>
+                                <form action="/panel/users" method="POST">
+                                    <input type="hidden" name="id" value="<%= user.id %>">
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<%- include('footer'); %>

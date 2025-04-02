@@ -1,0 +1,21 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <h2>Login to panel</h2>
+        <form action="/panel/login" method="POST" id="login-form">
+            <label for="login">Username:</label>
+            <input type="text" id="login" name="login" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <button type="submit">Login</button>
+        </form>
+        <div class="error">
+            <% if (error) { %>
+                <p><%= error %></p>
+            <% } %>
+        </div>
+    </div>
+    <%- include('footer'); %>

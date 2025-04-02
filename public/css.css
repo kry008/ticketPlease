@@ -1,0 +1,352 @@
+/* Resetowanie domyślnych stylów */
+body, ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px; /* Zapewnia miejsce na nagłówek */
+    background-color: #f4f4f4;
+}
+.title
+{
+    display: none;
+}
+/* Nagłówek */
+#top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #333;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+#top h1 a {
+    color: white;
+    text-decoration: none;
+}
+
+#top img {
+    height: 40px;
+}
+
+/* Menu */
+nav {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    height: 100vh;
+    width: 250px;
+    background: #222;
+    transition: 0.3s;
+    padding-top: 60px;
+}
+
+nav ul {
+    padding: 0;
+}
+
+nav ul li {
+    padding: 15px;
+    border-bottom: 1px solid #444;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+nav ul li.active a {
+    font-weight: bold;
+}
+
+/* Styl dla menu otwartego */
+nav.open {
+    left: 0;
+}
+
+/* Przycisk hamburgera */
+.menu-toggle {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1100;
+}
+
+.menu-toggle div {
+    width: 30px;
+    height: 4px;
+    background: white;
+    margin: 6px 0;
+}
+
+/* Treść */
+#content {
+    min-width: 80%;
+    max-width: 1200px;
+    
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 80px;
+    padding: 20px;
+}
+
+/* Formularz */
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+#login-form label {
+    font-weight: bold;
+}
+
+#login-form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#login-form button {
+    background: #333;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+#login-form button:hover {
+    background: #555;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Stopka */
+footer {
+    margin-top: 20px;
+    padding: 10px;
+    background: #333;
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+/* Widok mobilny */
+@media (max-width: 768px) {
+    #content {
+        width: 90%;
+    }
+}
+
+#boxes
+{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.box
+{
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: black;
+    text-decoration: none;
+    transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s;
+}
+
+.box:hover
+{
+    background-color: #e0e0e0;
+    color: #333;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#addForm
+{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px auto;
+}
+#addForm form
+{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#addForm table td input
+{
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+#addForm table td select
+{
+    width: 20%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+#addForm table td button
+{
+    background: #333;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+#addForm table td button:hover
+{
+    background: #555;
+}
+
+#tableShow
+{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px auto;
+}
+#tableShow table
+{
+    width: 100%;
+    border-collapse: collapse;
+}
+#tableShow table th, #tableShow table td
+{
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+#tableShow table th
+{
+    background-color: #f4f4f4;
+}
+#tableShow table tr:nth-child(even)
+{
+    background-color: #f9f9f9;
+}
+#tableShow table tr:hover
+{
+    background-color: #e0e0e0;
+}
+#tableShow table td a
+{
+    color: #333;
+    text-decoration: none;
+}
+#tableShow table td a:hover
+{
+    text-decoration: underline;
+}
+#tableShow table td button
+{
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+#tableShow table td button:hover
+{
+    background: #555;
+}
+.error
+{
+    color: red;
+    margin-top: 10px;
+}
+.success
+{
+    color: green;
+    margin-top: 10px;
+}
+
+#reader
+{
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 16 / 9;
+    margin: 20px auto;
+}
+
+.notValidTicket
+{
+    background-color: rgb(238, 159, 159);
+    color: red;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.ticketInfo table#ticketInfo
+{
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+.ticketInfo table#ticketInfo th, .ticketInfo table#ticketInfo td
+{
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+.ticketInfo table#ticketInfo th
+{
+    background-color: #f4f4f4;
+}
+.ticketInfo table#ticketInfo tr:nth-child(even)
+{
+    background-color: #f9f9f9;
+}
+.ticketInfo table#ticketInfo tr:hover
+{
+    background-color: #e0e0e0;
+}

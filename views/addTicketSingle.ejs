@@ -1,0 +1,47 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content" style="width: calc(100%-30px); max-width: none; padding: 15px;" >
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <div id="addForm">
+            <!--INSERT INTO `tickets` (`id`, `type`, `name`, `pass`, `addedBy`, `email`, `emailSended`, `active`) VALUES (NULL, '1', 'test', 'RANDOM32char', '1', 'email', NULL, '1')-->
+            <h2>Add new ticket</h2>
+            <form action="/panel/addTicketSingle" method="POST">
+                <input type="hidden" name="action" value="add">
+                <table>
+                    <tr>
+                        <td><label for="type">Ticket type:</label></td>
+                        <td>
+                            <select id="type" name="type">
+                                <% ticketTypes.forEach(function(ticketType) { %>
+                                    <option value="<%= ticketType.id %>"><%= ticketType.name %> - <%= ticketType.date %></option>
+                                <% }); %>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" id="name" name="name" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email:</label></td>
+                        <td><input type="email" id="email" name="email" required></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Add Ticket</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<%- include('footer'); %>

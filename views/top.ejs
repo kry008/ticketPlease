@@ -1,0 +1,23 @@
+<div id="top">
+    <nav>
+        <button class="menu-toggle">
+            <div></div>
+            <div></div>
+            <div></div>
+        </button>        
+        <ul>
+            <% for (let i = 0; i < menu.length; i++) { %>
+                <li <% if (menu[i].active == true) { %>class="active"<% } %>>
+                    <a href= <%=menu[i].url%> " target="_self">
+                        <%= menu[i].name %>
+                    </a>
+                </li>
+
+            <% } %>
+        </ul>
+    </nav>
+    <h1 class="title"><a href="/"><%= title %></a></h1>
+    <div class="clear"></div>
+    <a onclick="window.history.back(); return false;"><img src="/img/logo.jpg" alt="Logo"></a>
+    <div class="clear"></div>
+</div>

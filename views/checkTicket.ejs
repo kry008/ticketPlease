@@ -1,0 +1,79 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content" style="width: calc(100%-30px); max-width: none; padding: 15px;" >
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <% if (notValidTicket) { %>
+            <div class="notValidTicket">
+                <p>Ticket was deleted!</p>
+            </div>
+        <% } %>
+        <% if (ticketInfo) { %>
+            <div class="ticketInfo">
+                <table id="ticketInfo">
+                    <tr>
+                        <td>Ticket NR:</td>
+                        <td><%= ticketInfo.idTicket %></td>
+                    </tr>
+                    <tr>
+                        <td>Type:</td>
+                        <td><%= ticketInfo.ticketType %></td>
+                    </tr>
+                    <tr>
+                        <td>Date:</td>
+                        <td><%= ticketInfo.date %></td>
+                    </tr>
+                    <tr>
+                        <td>Name:</td>
+                        <td><%= ticketInfo.ticketHolder %></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td><%= ticketInfo.email %></td>
+                    </tr>
+                </table>
+            </div>
+        <% } %>
+        <div id="addForm">
+            <!-- ticket://3?pass=4v7eWy15O7CvWmKHFxuvOBcJ597dcVyJ -->
+            <h2>Chceck ticket</h2>
+            <script src="/html5-qrcode.min.js"></script>
+            <form action="/panel/checkTicket" method="POST" id="checkTicketForm">
+                <input type="hidden" name="action" value="check" />
+                <table>
+                    <tr>
+                        <td>Code: </td>
+                        <td><input type="text" name="code" id="code" required /></td>
+                        <td><input type="submit" value="Check" /></td>  
+                    </tr>
+                    <tr>
+                        <td colspan="3"><div id="reader"></div></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <script>
+            function onScanSuccess(decodedText, decodedResult) {
+                console.log(`Scan result: ${decodedText}`, decodedResult);
+                var a = document.getElementById("code");
+                a.value = decodedText;
+                var form = document.getElementById("checkTicketForm");
+                form.submit();
+            }
+
+            var html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render(onScanSuccess);
+        </script>
+    </div>
+</div>
+<%- include('footer'); %>

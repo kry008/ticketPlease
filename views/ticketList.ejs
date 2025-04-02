@@ -1,0 +1,108 @@
+
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content" style="width: calc(100%-30px); max-width: none; padding: 15px;" >
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+    <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <div id="tableShow" style="overflow: auto;">
+    <h2>Ticket list</h2>
+    <table id="ticketsTable" style="width:100%; border: 1px solid black;">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Type</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Pass</th>
+                <th>Added by</th>
+                <th>Delete</th>
+            </tr>
+            <tr>
+                <th><input type="text" placeholder="Search Ticket ID" /></th>
+                <th><input type="text" placeholder="Search Ticket Type" /></th>
+                <th><input type="text" placeholder="Search Name" /></th>
+                <th><input type="text" placeholder="Search Email" /></th>
+                <th><input type="text" placeholder="Search Pass" /></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% tickets.forEach(function(ticket) { %>
+                <tr>
+                    <td><%= ticket.id %></td>
+                    <td><%= ticket.nazwaTypu %> - <%= ticket.dataWydarzenia %></td>
+                    <td><%= ticket.name %></td>
+                    <td><%= ticket.email %></td>
+                    <td><%= ticket.pass %></td>
+                    <td><%= ticket.dodal %></td>
+                    <td>
+                        <form action="/panel/ticketList" method="POST">
+                            <input type="hidden" name="id" value="<%= ticket.id %>">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Type</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Pass</th>
+                <th>Added by</th>
+                <th>Delete</th>
+            </tr>
+        </tfoot>
+    </table>
+    <script>
+        let table = new DataTable('#ticketsTable', {
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            sortable: true,
+            searchable: true,
+            labels: {
+                placeholder: 'Search...',
+                perPage: '{select} records per page',
+                noRows: 'No records found',
+                info: 'Showing {start} to {end} of {rows} entries'
+            }
+        });
+        // Add event listeners to the search inputs
+        const searchInputs = document.querySelectorAll('#ticketsTable thead input');
+        searchInputs.forEach((input, index) => {
+            input.addEventListener('keyup', () => {
+                const searchValue = input.value.toLowerCase();
+                table.search(searchValue, index);
+            });
+        });
+        // Add event listeners to the footer inputs
+        const footerInputs = document.querySelectorAll('#ticketsTable tfoot input');
+        footerInputs.forEach((input, index) => {
+            input.addEventListener('keyup', () => {
+                const searchValue = input.value.toLowerCase();
+                table.search(searchValue, index);
+            });
+        }); 
+    </script>
+    </div>
+</div>
+<%- include('footer'); %>
