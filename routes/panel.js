@@ -216,7 +216,7 @@ router.get('/addTicketPanel', (req, res) => {
         user: req.session.user
     })
 })
-//addTicketSingle
+
 router.get('/addTicketSingle', async (req, res) => {
     const [rows] = await con.execute('SELECT id, name, onTicket, date FROM ticketTypes WHERE active = 1')
     res.render('addTicketSingle', {
@@ -417,7 +417,7 @@ router.post('/checkTicket', async (req, res) => {
         console.log('Ticket:', ticket)
         console.log('ID:', id)
         console.log('Pass:', pass)
-        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder',`tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date' FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.`id` AND `tickets`.id = ? AND `tickets`.pass = ?", [id, pass])
+        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` WHERE `tickets`.id = ? AND tickets.pass = ? GROUP BY `tickets`.`id`; ", [id, pass])
         console.log('Rows:', rows);
         if(rows.length > 0)
         {
@@ -458,7 +458,7 @@ router.post('/checkTicket', async (req, res) => {
 })
 
 router.get('/checkTicketManual', async (req, res) => {
-    const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder',`tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date' FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.`id`")
+    const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;"  )
     res.render('checkTicketManual', {
         title: 'Check Ticket Manual',
         siteName: req.siteName,
@@ -472,8 +472,62 @@ router.get('/checkTicketManual', async (req, res) => {
         ticketsRows: rows,
         ticketInfo: false,
         notValidTicket: false
-        
+
     })
+})
+
+router.post('/checkTicketManual', async (req, res) => {
+    var action = req.body.action
+    if(action != 'check')
+    {
+        console.log('Unknown action:', action)
+        return res.render('checkTicketManual', {
+            title: 'Check Ticket Manual',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: 'Error: Unknown action',
+            success: false,
+            ticketsRows: rows,
+            ticketInfo: false,
+            notValidTicket: false
+        })
+    }
+    else
+    {
+        var id = req.body.id
+        console.log('ID:', id)
+        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` AND `tickets`.id = ? GROUP BY `tickets`.`id`;", [id])
+        console.log('Rows:', rows);
+        if(rows.length > 0)
+        {
+            await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
+            var notValidTicket = false
+            if(rows[0].active == 0)
+            {
+                var notValidTicket = true
+            }
+            const [row] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;")
+
+            return res.render('checkTicketManual', {
+                title: 'Check Ticket Manual',
+                siteName: req.siteName,
+                menu: [
+                    { name: 'home', url: '/' },
+                    { name: 'panel', url: '/panel/dashboard', active: true }
+                ],
+                user: req.session.user, 
+                error: false,
+                success: false,
+                ticketsRows: row,
+                ticketInfo: rows[0],
+                notValidTicket: notValidTicket
+            })
+        }
+    }
 })
 
 function randomChars(length) {

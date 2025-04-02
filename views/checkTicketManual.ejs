@@ -1,3 +1,4 @@
+
 <%- include('./head'); %>
 <body>
     <%- include('./top'); %>
@@ -11,14 +12,9 @@
             <div class="success">
                 <p><%= success %></p>
             </div>
-        <% } %>
-        <% if (notValidTicket) { %>
-            <div class="notValidTicket">
-                <p>Ticket was deleted!</p>
-            </div>
-        <% } %>
-        <% if (ticketInfo) { %>
+        <% } %><% if (ticketInfo) { %>
             <div class="ticketInfo">
+                <h2 style="text-align: center;">Ticket info</h2>
                 <table id="ticketInfo">
                     <tr>
                         <td>Ticket NR:</td>
@@ -40,40 +36,104 @@
                         <td>Email:</td>
                         <td><%= ticketInfo.email %></td>
                     </tr>
+                    <tr>
+                        <td>Check count:</td>
+                        <td><%= ticketInfo.checkCount %></td>
+                    </tr>
                 </table>
             </div>
         <% } %>
-        <div id="addForm">
-            <!-- ticket://3?pass=4v7eWy15O7CvWmKHFxuvOBcJ597dcVyJ -->
-            <h2>Chceck ticket</h2>
-            <script src="/html5-qrcode.min.js"></script>
-            <form action="/panel/checkTicket" method="POST" id="checkTicketForm">
-                <input type="hidden" name="action" value="check" />
-                <table>
-                    <tr>
-                        <td>Code: </td>
-                        <td><input type="text" name="code" id="code" required /></td>
-                        <td><input type="submit" value="Check" /></td>  
-                    </tr>
-                    <tr>
-                        <td colspan="3"><div id="reader"></div></td>
-                    </tr>
-                </table>
-            </form>
-        </div>
-        <script>
-            function onScanSuccess(decodedText, decodedResult) {
-                console.log(`Scan result: ${decodedText}`, decodedResult);
-                var a = document.getElementById("code");
-                a.value = decodedText;
-                var form = document.getElementById("checkTicketForm");
-                form.submit();
+    <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <div id="tableShow" style="overflow: auto;">
+    <h2>Ticket list</h2>
+    <table id="ticketsTable" style="width:100%; border: 1px solid black;">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Type</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Check count</th>
+                <th>Active</th>
+                <th>Delete</th>
+            </tr>
+            <tr>
+                <th><input type="text" placeholder="Search Ticket ID" /></th>
+                <th><input type="text" placeholder="Search Ticket Type" /></th>
+                <th><input type="text" placeholder="Search Name" /></th>
+                <th><input type="text" placeholder="Search Email" /></th>
+                <th><input type="text" placeholder="Search Check Count" /></th>
+                <th><input type="text" placeholder="Search Active" /></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--    const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder',`tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date' FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.`id`")-->
+            <% ticketsRows.forEach(function(ticket) { %>
+                <tr>
+                    <td><%= ticket.idTicket %></td>
+                    <td><%= ticket.ticketType %> - <%= ticket.date %></td>
+                    <td><%= ticket.ticketHolder %></td>
+                    <td><%= ticket.email %></td>
+                    <td><%= ticket.checkCount %></td>
+                    <td><% if (ticket.active) { %>Yes<% } else { %><span class="no">No</span><% } %></td>
+                    <td>
+                        <form action="/panel/checkTicketManual" method="POST">
+                            <input type="hidden" name="id" value="<%= ticket.idTicket %>">
+                            <input type="hidden" name="action" value="check">
+                            <button type="submit">Check</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Type</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Check count</th>
+                <th>Active</th>
+                <th>Delete</th>
+            </tr>
+        </tfoot>
+    </table>
+    <script>
+        let table = new DataTable('#ticketsTable', {
+            perPage: 10,
+            perPageSelect: [10, 25, 50, 100],
+            sortable: true,
+            searchable: true,
+            labels: {
+                placeholder: 'Search...',
+                perPage: '{select} records per page',
+                noRows: 'No records found',
+                info: 'Showing {start} to {end} of {rows} entries'
             }
-
-            var html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader", { fps: 10, qrbox: 250 });
-            html5QrcodeScanner.render(onScanSuccess);
-        </script>
+        });
+        // Add event listeners to the search inputs
+        const searchInputs = document.querySelectorAll('#ticketsTable thead input');
+        searchInputs.forEach((input, index) => {
+            input.addEventListener('keyup', () => {
+                const searchValue = input.value.toLowerCase();
+                table.search(searchValue, index);
+            });
+        });
+        // Add event listeners to the footer inputs
+        const footerInputs = document.querySelectorAll('#ticketsTable tfoot input');
+        footerInputs.forEach((input, index) => {
+            input.addEventListener('keyup', () => {
+                const searchValue = input.value.toLowerCase();
+                table.search(searchValue, index);
+            });
+        }); 
+    </script>
     </div>
 </div>
 <%- include('footer'); %>

@@ -350,3 +350,12 @@ footer {
 {
     background-color: #e0e0e0;
 }
+
+.no
+{
+    color: red;
+    font-weight: bold;
+    font-size: x-large;
+    text-align: center;
+    margin-top: 20px;
+}
