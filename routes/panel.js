@@ -623,6 +623,113 @@ router.post('/settings', async (req, res) => {
     })
 })
 
+/*
+
+CREATE TABLE `apiKeys` (
+  `id` int NOT NULL,
+  `keyCode` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `user` int NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;*/
+router.get('/api', async (req, res) => {
+    const [rows] = await con.execute('SELECT * FROM apiKeys WHERE user = ? AND active = 1', [req.session.user.id])
+    if(rows.length == 0)
+    {
+        return res.render('apiNew', {
+            title: 'API',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: false,
+            success: false,
+            apiKey: false
+        })
+    }
+    else
+    {
+        return res.render('api', {
+            title: 'API',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: false,
+            success: false,
+            apiKey: rows[0]
+        })
+    }
+})
+
+router.post('/api', async (req, res) => {
+    //action = [reset or new]
+    var action = req.body.action
+    if(action == 'reset')
+    {
+        await con.execute('UPDATE apiKeys SET active = 0 WHERE user = ?', [req.session.user.id])
+        var keyCode = randomChars(50)
+        await con.execute('INSERT INTO apiKeys (keyCode, user) VALUES (?, ?)', [keyCode, req.session.user.id])
+    }
+    else if(action == 'new')
+    {
+        var keyCode = randomChars(50)
+        await con.execute('INSERT INTO apiKeys (keyCode, user) VALUES (?, ?)', [keyCode, req.session.user.id])
+    }
+    else
+    {
+        console.log('Unknown action:', action)
+        return res.render('newApi', {
+            title: 'API',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: 'Error: Unknown action',
+            success: false,
+            apiKey: false
+        })
+    }
+    const [rows] = await con.execute('SELECT * FROM apiKeys WHERE user = ? AND active = 1', [req.session.user.id])
+    if(rows.length == 0)
+    {
+        return res.render('apiNew', {
+            title: 'API',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: false,
+            success: 'API key changed successfully',
+            apiKey: false
+        })
+    }
+    else
+    {
+        return res.render('api', {
+            title: 'API',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user, 
+            error: false,
+            success: 'API key reset successfully',
+            apiKey: rows[0]
+        })
+    }
+})
+
+
+
 function randomChars(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789';

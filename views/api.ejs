@@ -1,0 +1,33 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content">
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <div class="addForm">
+            <h2>Your code for app:</h2>
+            <div id="warningZone">
+                <h2>Generate new API key for app</h2>
+                <form action="/panel/api" method="POST">
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="hidden" name="action" value="reset">
+                                <button type="submit" style="width: 100%;">Reset API key</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('footer'); %>
