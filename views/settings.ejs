@@ -1,0 +1,88 @@
+<%- include('./head'); %>
+<body>
+    <%- include('./top'); %>
+    <div id="content" style="width: calc(100%-30px); max-width: none; padding: 15px;" >
+        <% if (error) { %>
+            <div class="error">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+        <div class="addForm" id="warningZone">
+            <%# SELECT `name`, `value` FROM `settings` WHERE 1 %>
+            <%# name = [siteName, smtpServer, smtpUser, smtpPass, smtpSendAs, smtpPort, smtpTls, smtpBcc, smtpSubject, smtpFromEmail] -> can be null %>
+            <h2>Add new ticket</h2>
+            <form action="/panel/settings" method="POST">
+                <input type="hidden" name="action" value="change">
+                <table>
+                    <tr>
+                        <td><label for="siteName">Site name:</label></td>
+                        <td><input type="text" id="siteName" name="siteName" value="<%= settings.siteName %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpServer">SMTP server:</label></td>
+                        <td><input type="text" id="smtpServer" name="smtpServer" value="<%= settings.smtpServer %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpUser">SMTP user:</label></td>
+                        <td><input type="text" id="smtpUser" name="smtpUser" value="<%= settings.smtpUser %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpPass">SMTP password:</label></td>
+                        <td><input type="password" id="smtpPass" name="smtpPass" value="<%= settings.smtpPass %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpSendAs">SMTP send as:</label></td>
+                        <td><input type="text" id="smtpSendAs" name="smtpSendAs" value="<%= settings.smtpSendAs %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpPort">SMTP port:</label></td>
+                        <td><input type="text" id="smtpPort" name="smtpPort" value="<%= settings.smtpPort %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpTls">SMTP TLS:</label></td>
+                        <td><input type="checkbox" id="smtpTls" name="smtpTls" value="1" <%= settings.smtpTls ? 'checked' : '' %>></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpBcc">SMTP BCC:</label></td>
+                        <td><input type="text" id="smtpBcc" name="smtpBcc" value="<%= settings.smtpBcc %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpSubject">SMTP subject:</label></td>
+                        <td><input type="text" id="smtpSubject" name="smtpSubject" value="<%= settings.smtpSubject %>" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="smtpFromEmail">SMTP from email:</label></td>
+                        <td><input type="text" id="smtpFromEmail" name="smtpFromEmail" value="<%= settings.smtpFromEmail %>" required></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Save Settings</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="safeZone" class="addForm" >
+            <h2>BackUp DB</h2>
+            <p>Download the database backup</p>
+            <form action="/panel/settings" method="POST">
+                <input type="hidden" name="action" value="backup">
+                <button type="submit">Download</button>
+            </form>
+        </div>
+        <div id="dangerZone" class="addForm" >
+            <h2>Danger zone</h2>
+            <p>Delete all tickets</p>
+            <form action="/panel/settings" method="POST">
+                <input type="hidden" name="action" value="deleteAll">
+                <button type="submit">Delete all tickets</button>
+            </form>
+            <p>This will delete all tickets from the database. This action cannot be undone.</p>
+            <p>Make sure to backup your database before proceeding.</p>
+        </div>
+    </div>
+</div>
+<%- include('footer'); %>

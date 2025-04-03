@@ -193,20 +193,20 @@ footer {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-#addForm
+.addForm
 {
     display: flex;
     flex-direction: column;
     gap: 15px;
     margin: 10px auto;
 }
-#addForm form
+.addForm form
 {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
-#addForm table td input
+.addForm table td input
 {
     width: 90%;
     padding: 10px;
@@ -214,7 +214,7 @@ footer {
     border-radius: 5px;
     font-size: 16px;
 }
-#addForm table td select
+.addForm table td select
 {
     width: 20%;
     padding: 10px;
@@ -222,7 +222,7 @@ footer {
     border-radius: 5px;
     font-size: 16px;
 }
-#addForm table td button
+.addForm button
 {
     background: #333;
     color: white;
@@ -233,7 +233,7 @@ footer {
     font-size: 16px;
     transition: 0.3s;
 }
-#addForm table td button:hover
+.addForm button:hover
 {
     background: #555;
 }
@@ -358,4 +358,32 @@ footer {
     font-size: x-large;
     text-align: center;
     margin-top: 20px;
+}
+
+#warningZone
+{
+    background-color: rgb(255, 255, 174);
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    border: 5px solid yellow;
+    margin: 10px auto;
+}
+#safeZone
+{
+    background-color: lightgreen;
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    border: 5px solid green;
+    margin: 10px auto;
+}
+#dangerZone
+{
+    background-color: rgb(255, 174, 174);
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    border: 5px solid red;
+    margin: 10px auto;
 }

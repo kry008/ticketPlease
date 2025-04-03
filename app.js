@@ -13,7 +13,7 @@ app.set('views', './views')
 import session from 'express-session';
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecretkey',
+  secret: process.env.SECRET_KEY || 'supersecretkey',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
@@ -121,9 +121,7 @@ await settings().then(() => {
   app.listen(port, () => {
     console.log(`http://localhost:${port}`)
   })
-}
-).catch((err) => {
+}).catch((err) => {
   console.error('Error fetching settings:', err);
   process.exit(1); // Exit the process with an error code
-}
-)
+})

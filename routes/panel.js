@@ -530,6 +530,99 @@ router.post('/checkTicketManual', async (req, res) => {
     }
 })
 
+router.get('/settings', async (req, res) => {
+    const [rows] = await con.execute('SELECT * FROM settings')
+    res.render('settings', {
+        title: 'Settings',
+        siteName: req.siteName,
+        menu: [
+            { name: 'home', url: '/' },
+            { name: 'panel', url: '/panel/dashboard', active: true }
+        ],
+        user: req.session.user, 
+        error: false,
+        success: false,
+        settings: rows
+    })
+})
+
+/*
+change:
+            <%# SELECT `name`, `value` FROM `settings` WHERE 1 %>
+            <%# name = [siteName, smtpServer, smtpUser, smtpPass, smtpSendAs, smtpPort, smtpTls, smtpBcc, smtpSubject, smtpFromEmail] -> can be null %>
+backup: download database as backup
+deleteAll: turncate ticketCheck, tickets, ticketTypes
+*/
+router.post('/settings', async (req, res) => {
+    //in body action = add or delete
+    var action = req.body.action
+    if(action == 'change')
+    {
+        var siteName = req.body.siteName
+        var smtpServer = req.body.smtpServer
+        var smtpUser = req.body.smtpUser
+        var smtpPass = req.body.smtpPass
+        var smtpSendAs = req.body.smtpSendAs
+        var smtpPort = req.body.smtpPort
+        var smtpTls = req.body.smtpTls
+        var smtpBcc = req.body.smtpBcc
+        var smtpSubject = req.body.smtpSubject
+        var smtpFromEmail = req.body.smtpFromEmail
+
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [siteName, 'siteName'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpServer, 'smtpServer'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpUser, 'smtpUser'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpPass, 'smtpPass'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpSendAs, 'smtpSendAs'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpPort, 'smtpPort'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpTls, 'smtpTls'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpBcc, 'smtpBcc'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpSubject, 'smtpSubject'])
+        await con.execute('UPDATE settings SET value = ? WHERE name = ?', [smtpFromEmail, 'smtpFromEmail'])
+    }
+    else if(action == 'deleteAll')
+    {
+        await con.execute('SET FOREIGN_KEY_CHECKS = 0');
+        await con.execute('TRUNCATE TABLE ticketCheck');
+        await con.execute('TRUNCATE TABLE tickets');
+        await con.execute('TRUNCATE TABLE ticketTypes');
+        await con.execute('SET FOREIGN_KEY_CHECKS = 1');
+    }
+    else if(action == 'backup')
+    {
+        
+    }
+    else
+    {
+        console.log('Unknown action:', action)
+        return res.render('settings', {
+            title: 'Settings',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user,
+            error: 'Error: Unknown action',
+            success: false,
+            settings: rows
+        })
+    }
+    const [rows] = await con.execute('SELECT * FROM settings')
+    return res.render('settings', {
+        title: 'Settings',
+        siteName: req.siteName,
+        menu: [
+            { name: 'home', url: '/' },
+            { name: 'panel', url: '/panel/dashboard', active: true }
+        ],
+        user: req.session.user, 
+        error: false,
+        success: 'Settings updated successfully',
+        settings: rows
+    })
+})
+
 function randomChars(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789';
