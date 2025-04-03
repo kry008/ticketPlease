@@ -239,7 +239,7 @@ router.post('/addTicketSingle', async (req, res) => {
     if(action == 'add')
     {
         var name = req.body.name
-        var pass = randomChars(32)
+        var pass = randomChars(24)
         var email = req.body.email
         var type = req.body.type
         var addedBy = req.session.user.id
