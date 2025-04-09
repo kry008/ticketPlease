@@ -77,10 +77,11 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
   html = html.replace(/{{id}}/g, id)
   html = html.replace(/{{pass}}/g, pass)
   html = html.replace(/{{color}}/g, color)
+  html = html.replace(/{{email}}/g, email)
   html = html.replace(/{{img}}/g, `<img src="cid:ticket" alt="Ticket" />`)
   try {
     const settings = await getSettings()
-    console.log('Settings:', settings)
+    //console.log('Settings:', settings)
     const transporter = nodemailer.createTransport({
       host: settings.smtpServer,
       port: parseInt(settings.smtpPort),
@@ -96,7 +97,8 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
       from: `"${settings.smtpSendAs}" <${settings.smtpFromEmail}>`,
       to: email,
       bcc: settings.smtpBcc || undefined,
-      subject: settings.smtpSubject || 'test',
+      replyTo: settings.smtpReplyTo || undefined,
+      subject: settings.smtpSubject || 'Your ticket',
       html: html,
       attachments: [
         {
