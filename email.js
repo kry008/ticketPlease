@@ -21,7 +21,7 @@ async function generateTicketImage(img, name, id, pass, color, outputPath) {
     ctx.drawImage(baseImage, 0, 0, width, height)
 
     // TXT
-    ctx.fillStyle = color
+    ctx.fillStyle = color || '#000000'
     ctx.font = '32px sans-serif'
     const text = name
     const textX = 20
@@ -72,6 +72,12 @@ async function getSettings() {
 }
 
 async function sendTestEmail(img, name, id, pass, color, email, html) {
+  //in html replace {{name}} with name
+  html = html.replace(/{{name}}/g, name)
+  html = html.replace(/{{id}}/g, id)
+  html = html.replace(/{{pass}}/g, pass)
+  html = html.replace(/{{color}}/g, color)
+  html = html.replace(/{{img}}/g, `<img src="cid:ticket" alt="Ticket" />`)
   try {
     const settings = await getSettings()
     console.log('Settings:', settings)
