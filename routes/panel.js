@@ -135,6 +135,7 @@ router.post('/ticketTypes', async (req, res) => {
         var dateTo = req.body.dateTo
         var nameShow = req.body.nameShow
         var dateShow = req.body.dateShow
+        var color = req.body.color
         if(dateFrom == dateTo)
         {
             var date = dateFrom;
@@ -150,7 +151,8 @@ router.post('/ticketTypes', async (req, res) => {
 
         var config = {
             nameShow: nameShow,
-            dateShow: dateShow
+            dateShow: dateShow,
+            color: color
         }
         var config = JSON.stringify(config)
         var img = req.body.img
