@@ -102,9 +102,13 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
       html: html,
       attachments: [
         {
-          filename: 'bilet.png',
+          filename: 'ticket.png',
           path: ticketPath,
           cid: 'ticket'
+        },
+        {
+          filename: 'ticket.png',
+          path: ticketPath
         }
       ]
     }
