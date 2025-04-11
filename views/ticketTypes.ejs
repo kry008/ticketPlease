@@ -1,23 +1,23 @@
 <%- include('./head'); %>
 <body>
-    <%- include('./top'); %>
-    <div id="content">
-        <% if (error) { %>
+<%- include('./top'); %>
+<div id="content">
+    <% if (error) { %>
             <div class="error">
                 <p><%= error %></p>
             </div>
-        <% } %>
-        <% if (success) { %>
+    <% } %>
+    <% if (success) { %>
             <div class="success">
                 <p><%= success %></p>
             </div>
-        <% } %>
-        <div class="addForm">
-            <!--INSERT INTO ticketTypes (name, onTicket, numberOfLines, date, img, config, emailMessage-->
-            <h2>Add new ticket type</h2>
-            <form action="/panel/ticketTypes" method="POST">
-                <input type="hidden" name="action" value="add">
-                <table>
+    <% } %>
+
+    <div class="addForm">
+        <h2>Add new ticket type</h2>
+        <form action="/panel/ticketTypes" method="POST">
+            <input type="hidden" name="action" value="add">
+            <table>
                     <tr>
                         <td><label for="name">Name:</label></td>
                         <td><input type="text" id="name" name="name" required></td>
@@ -66,19 +66,122 @@
                     </tr-->
                     <tr>
                         <td><label for="emailMessage">Email message:</label></td>
-                        <td><textarea id="emailMessage" name="emailMessage"></textarea></td>
+                        <td>
+                            <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+                            <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.min.js"></script>
+                            <!-- Custom toolbar -->
+                            <div id="toolbar">
+                                <select class="ql-header">
+                                    <option value="1"></option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                    <option selected></option>
+                                </select>
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                                <select class="ql-align"></select>
+                                <button class="ql-link"></button>
+                                <button class="ql-clean"></button>
+                        
+                                <!-- Placeholder buttons -->
+                                <button class="ql-placeholder" data-value="{{img}}">Img</button>
+                                <button class="ql-placeholder" data-value="{{name}}">Name</button>
+                                <button class="ql-placeholder" data-value="{{date}}">Date</button>
+                                <button class="ql-placeholder" data-value="{{ticketType}}">Ticket type</button>
+                                <button class="ql-placeholder" data-value="{{id}}">ID</button>
+                            </div>
+                        
+                            <!-- Editor -->
+                            <div id="editor" style="height: 300px;"></div>
+                            <textarea id="emailMessage" name="emailMessage" style="display:none;"></textarea>
+                        
+                            <!-- Styl dla placeholdera -->
+                            <style>
+                                .ql-placeholder {
+                                    background-color: #f0f0f0;
+                                    border-radius: 4px;
+                                    padding: 2px 4px;
+                                    margin: 0 2px;
+                                    cursor: pointer;
+                                    font-size: 0.9em;
+                                    color: #555 !important;
+                                    font-weight: bold;
+                                    text-decoration: underline;
+                                    min-width: 100px;
+                                }
+                            </style>
+                        
+                            <!-- Skrypt Quill -->
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    const PlaceholderBlot = Quill.import('blots/embed');
+                        
+                                    class Placeholder extends PlaceholderBlot {
+                                        static blotName = 'placeholder';
+                                        static tagName = 'span';
+                                        static className = 'placeholder-blot';
+                        
+                                        static create(value) {
+                                            const node = super.create();
+                                            node.setAttribute('data-name', value);
+                                            node.innerText = value;
+                                            return node;
+                                        }
+                        
+                                        static value(node) {
+                                            return node.getAttribute('data-name');
+                                        }
+                                    }
+                        
+                                    Quill.register(Placeholder);
+                        
+                                    const quill = new Quill('#editor', {
+                                        theme: 'snow',
+                                        modules: {
+                                            toolbar: {
+                                                container: '#toolbar',
+                                            }
+                                        },
+                                        formats: ['header', 'bold', 'italic', 'underline', 'list', 'align', 'link', 'placeholder']
+                                    });
+                        
+                                    // Insert placeholder into the editor when a button is clicked
+                                    const placeholderButtons = document.querySelectorAll('.ql-placeholder');
+                                    placeholderButtons.forEach(button => {
+                                        button.addEventListener('click', function () {
+                                            const value = this.getAttribute('data-value'); // Get the placeholder value
+                                            const cursorPosition = quill.getSelection()?.index || 0; // Get current cursor position
+                                            quill.insertEmbed(cursorPosition, 'placeholder', value, 'user'); // Insert the placeholder
+                                            quill.setSelection(cursorPosition + value.length); // Move cursor after inserted placeholder
+                                        });
+                                    });
+                        
+                                    // Handle form submission to save the editor content
+                                    document.querySelector('form')?.addEventListener('submit', function () {
+                                        const html = quill.root.innerHTML;
+                                        document.getElementById('emailMessage').value = html;
+                                    });
+                                });
+                            </script>
+                        </td>
+                        
                     </tr>
+                    
+
                     <tr>
                         <td colspan="2"><button type="submit">Add Ticket Type</button></td>
                     </tr>
-                </table>
-            </form>
-        </div>
-        <div id="tableShow">
-            <h2>Ticket Types</h2>
-            <table id="ticketTypesTable">
-                <thead>
-                    <tr>
+            </table>
+        </form>
+    </div>
+    <div id="tableShow">
+        <h2>Ticket Types</h2>
+        <table id="ticketTypesTable">
+            <thead>
+                <tr>
                         <th>ID</th>
                         <th>Name</th>
                         <th>On Ticket</th>
@@ -88,28 +191,28 @@
                         <th>Config</th>
                         <th>Email Message</th>
                         <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% ticketTypes.forEach(function(ticketType) { %>
+                    <tr>
+                        <td><%= ticketType.id %></td>
+                        <td><%= ticketType.name %></td>
+                        <td><%= ticketType.onTicket %></td>
+                        <td><%= ticketType.numberOfLines %></td>
+                        <td><%= ticketType.date %></td>
+                        <td><img src="<%= ticketType.img %>" width="200px"></td>
+                        <td><%= ticketType.config %></td>
+                        <td><%= ticketType.emailMessage %></td>
+                        <td>
+                            <form action="/panel/ticketTypes" method="POST">
+                                <input type="hidden" name="id" value="<%= ticketType.id %>">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <% ticketTypes.forEach(function(ticketType) { %>
-                        <tr>
-                            <td><%= ticketType.id %></td>
-                            <td><%= ticketType.name %></td>
-                            <td><%= ticketType.onTicket %></td>
-                            <td><%= ticketType.numberOfLines %></td>
-                            <td><%= ticketType.date %></td>
-                            <td><img src="<%= ticketType.img %>" width="200px"></td>
-                            <td><%= ticketType.config %></td>
-                            <td><%= ticketType.emailMessage %></td>
-                            <td>
-                                <form action="/panel/ticketTypes" method="POST">
-                                    <input type="hidden" name="id" value="<%= ticketType.id %>">
-                                    <input type="hidden" name="action" value="delete">
-                                    <button type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        </div>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
