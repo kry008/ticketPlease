@@ -8,6 +8,16 @@ import QRCode from 'qrcode'
 
 dotenv.config()
 
+
+const connection = await mysql.createConnection({
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  port: process.env.MYSQL_PORT
+})
+
+
 async function generateTicketImage(img, name, id, pass, color, outputPath) {
   try {
     const baseImage = await loadImage(`ticket_img/${img}`)
@@ -124,13 +134,6 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
 
 async function sendTickets() {
   try {
-    const connection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      port: process.env.MYSQL_PORT
-    })
 
     const [rows] = await connection.execute('SELECT `tickets`.`id` AS id, `tickets`.`name` AS name, `tickets`.`email` as SendTo, `tickets`.`pass` as pass, `ticketTypes`.`img` as img, `ticketTypes`.`config` as config, `ticketTypes`.`emailMessage` as html FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.id AND tickets.emailSended IS NULL AND `tickets`.`active` = 1 ORDER BY id LIMIT 1;')
 
@@ -148,9 +151,9 @@ async function sendTickets() {
       console.log('Ticket updated:', id)
       return
     }
-
-    await connection.end()
-  } catch (err) {
+    return
+  }
+  catch (err) {
     console.error('Error:', err)
   }
 }

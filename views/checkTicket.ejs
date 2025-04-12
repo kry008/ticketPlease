@@ -14,7 +14,7 @@
         <% } %>
         <% if (notValidTicket) { %>
             <div class="notValidTicket">
-                <p>Ticket was deleted!</p>
+                <p>Cannot find ticket!</p>
             </div>
         <% } %>
         <% if (ticketInfo) { %>
@@ -48,7 +48,6 @@
             </div>
         <% } %>
         <div class="addForm">
-            <!-- ticket://3?pass=4v7eWy15O7CvWmKHFxuvOBcJ597dcVyJ -->
             <h2>Chceck ticket</h2>
             <script src="/html5-qrcode.min.js"></script>
             <form action="/panel/checkTicket" method="POST" id="checkTicketForm">
