@@ -93,6 +93,10 @@ app.post('/panel/login', async (req, res) => {
       await con.execute('UPDATE user SET lastLogin = ? WHERE id = ?', [new Date(), rows[0].id]);
       return res.redirect('/panel/dashboard');
     } else {
+      var menuHome = [
+        { name: 'home', url: '/', active: false },
+        { name: 'panel', url: '/panel' }
+      ]
       return res.render('login', { menu: menuHome, siteName, title: 'Login', error: "Wrong login or password, try again" });
     }
   } catch (err) {
