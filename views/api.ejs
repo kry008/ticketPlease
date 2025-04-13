@@ -14,6 +14,19 @@
         <% } %>
         <div class="addForm">
             <h2>Your code for app:</h2>
+            <input type="text" disabled value="<%= apiKey %>">
+            <script src="/qrcode.min.js"></script>
+            <div id="qrcode"></div>
+            <script type="text/javascript">
+            var qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: "<%= apiKey %>",
+                width: 300,
+                height: 300,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+            </script>
             <div id="warningZone">
                 <h2>Generate new API key for app</h2>
                 <form action="/panel/api" method="POST">

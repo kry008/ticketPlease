@@ -548,13 +548,6 @@ router.get('/settings', async (req, res) => {
     })
 })
 
-/*
-change:
-            <%# SELECT `name`, `value` FROM `settings` WHERE 1 %>
-            <%# name = [siteName, smtpServer, smtpUser, smtpPass, smtpSendAs, smtpPort, smtpTls, smtpBcc, smtpSubject, smtpFromEmail] -> can be null %>
-backup: download database as backup
-deleteAll: turncate ticketCheck, tickets, ticketTypes
-*/
 router.post('/settings', async (req, res) => {
     //in body action = add or delete
     var action = req.body.action
@@ -625,14 +618,6 @@ router.post('/settings', async (req, res) => {
     })
 })
 
-/*
-
-CREATE TABLE `apiKeys` (
-  `id` int NOT NULL,
-  `keyCode` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `user` int NOT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;*/
 router.get('/api', async (req, res) => {
     const [rows] = await con.execute('SELECT * FROM apiKeys WHERE user = ? AND active = 1', [req.session.user.id])
     if(rows.length == 0)
@@ -652,6 +637,7 @@ router.get('/api', async (req, res) => {
     }
     else
     {
+        var apiKeyToRender = {'key': rows[0].keyCode, 'www': process.env.API_ADDRESS}
         return res.render('api', {
             title: 'API',
             siteName: req.siteName,
@@ -662,7 +648,7 @@ router.get('/api', async (req, res) => {
             user: req.session.user, 
             error: false,
             success: false,
-            apiKey: rows[0]
+            apiKey: JSON.stringify(apiKeyToRender)
         })
     }
 })
@@ -715,6 +701,7 @@ router.post('/api', async (req, res) => {
     }
     else
     {
+        var apiKeyToRender = {'key': rows[0].keyCode, 'www': process.env.API_ADDRESS}        
         return res.render('api', {
             title: 'API',
             siteName: req.siteName,
@@ -725,7 +712,7 @@ router.post('/api', async (req, res) => {
             user: req.session.user, 
             error: false,
             success: 'API key reset successfully',
-            apiKey: rows[0]
+            apiKey: JSON.stringify(apiKeyToRender)
         })
     }
 })

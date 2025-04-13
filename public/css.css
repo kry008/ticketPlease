@@ -387,3 +387,15 @@ footer {
     border: 5px solid red;
     margin: 10px auto;
 }
+#qrcode
+{
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 1 / 1;
+    margin: 20px auto;
+}
