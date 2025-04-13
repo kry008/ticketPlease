@@ -104,6 +104,8 @@ app.post('/panel/login', async (req, res) => {
 
 import panelRoutes from './routes/panel.js'
 app.use('/panel', panelRoutes)
+import apiRouters from './routes/api.js'
+app.use('/api', apiRouters)
 
 app.all('*', (req, res) => {
   var menuHome = [
