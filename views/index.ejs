@@ -1,9 +1,84 @@
 <%- include('./head'); %>
 <body>
     <%- include('./top'); %>
-    TUTAJ ZAWARTOŚĆ STRONY
-    <div id="content">
-        <h2>Welcome to the Home Page</h2>
-        <p>To do.</p>
-    </div>
+    <main id="content">
+        <section>
+            <h2>Welcome to <%= siteName %></h2>
+        </section>
+        <section class="infoTicket">
+        <% if (ticket == -1) { %>
+            <div id="dangerZone">
+                <p class="biger">Ticket not found</p>
+            </div>
+        <% } else if (ticket != null) { %>
+            <div id="safeZone">
+                <table id="ticketData">
+                    <tr>
+                        <th colspan="2">Ticket found</td>
+                    </tr>
+                    <tr>
+                        <td>Ticket Type:</td>
+                        <td><%= ticketType %></td>
+                    </tr>
+                    <tr>
+                        <td>Event day:</td>
+                        <td><%= date %></td>
+                    </tr>
+                    <tr>
+                        <td>Name:</td>
+                        <td><%= name %></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td><%= email %></td>
+                    </tr>
+                </table>
+            </div>
+        <% } %>
+        </section>
+        <section id="checkTicket">
+            <h2>Check your ticket</h2>
+            <form action="/ticket" method="POST">
+                <table>
+                    <tr>
+                        <td>
+                            <label for="ticket">Ticket ID:</label><br />
+                            <input type="text" id="ticket" name="ticket" placeholder="Enter your ticket ID">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="email">Email:</label><br />
+                            <input type="email" id="email" name="email" placeholder="Enter your email">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="submit" value="Check ticket">
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+        <style>
+            #ticketData {
+                border-collapse: collapse;
+                margin: 0 auto;
+            }
+            #ticketData td {
+                border: 1px solid #ccc;
+                padding: 8px;
+            }
+            #ticketData td:first-child {
+                font-weight: bold;
+            }
+            .biger
+            {
+                font-size: 1.5em;
+                color: red;
+                text-align: center;
+                font-weight: bold;
+            }
+        </style>
+    </main>
     <%- include('footer'); %>

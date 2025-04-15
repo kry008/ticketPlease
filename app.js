@@ -50,7 +50,29 @@ app.get('/', (req, res) => {
     { name: 'home', url: '/', active: true },
     { name: 'panel', url: '/panel' }
   ]
-  return res.render('index', { menu: menuHome, siteName: siteName, title: 'Home' })
+  return res.render('index', { menu: menuHome, siteName: siteName, title: 'Home', ticket: null })
+})
+
+app.post("/ticket", async (req, res) => {
+  var menuHome = [
+    { name: 'home', url: '/', active: true },
+    { name: 'panel', url: '/panel' }
+  ]
+  //SELECT tickets.id, ticketTypes.onTicket, tickets.name, tickets.email FROM `tickets`, `ticketTypes` WHERE tickets.type = ticketTypes.id WHERE tickets.id = ? AND tickets.email = ? AND tickets.active = 1
+  var ticket = req.body.ticket
+  var email = req.body.email
+  const [rows] = await con.execute("SELECT tickets.id, ticketTypes.onTicket, ticketTypes.date, tickets.name, tickets.email FROM `tickets`, `ticketTypes` WHERE tickets.type = ticketTypes.id AND tickets.id = ? AND tickets.email = ? AND tickets.active = 1", [ticket, email])
+  //res json(rows)
+  if (rows.length > 0) {
+    var ticket = rows[0]
+    var ticketType = ticket.onTicket
+    var name = ticket.name
+    var email = ticket.email
+    var date = ticket.date
+    return res.render('index', { menu: menuHome, siteName: siteName, title: 'Home', ticket: ticket, ticketType: ticketType, name: name, email: email, date: date })
+  } else {
+    return res.render('index', { menu: menuHome, siteName: siteName, title: 'Home', ticket: -1 })  
+  }
 })
 
 
