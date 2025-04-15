@@ -14,11 +14,12 @@ const con = await mysql.createConnection({
 router.all('*', (req, res, next) => {
     const token = req.headers['authorization'];
     if (token) {
-        con.execute('SELECT `id`, `user` FROM `apiKeys` WHERE `active` = 1 AND `keyCode` = ?', [token])
+        con.execute('SELECT `user` FROM `apiKeys` WHERE `active` = 1 AND `keyCode` = ?', [token])
             .then(([rows]) => {
                 if (rows.length > 0) {
                     req.user = rows[0].user;
-                    req.userId = rows[0].id;
+                    console.log(req.user);
+                    
                     next();
                 } else {
                     res.status(401).json({ error: 'Unauthorized' });
@@ -59,7 +60,7 @@ router.post('/checkTicket', async (req, res) => {
     console.log('Rows:', rows);
     if(rows.length > 0)
     {
-        await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.userId])
+        await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.user])
         return res.status(200).json({ message: 'Ticket checked', data: rows[0] });
     }
     else
