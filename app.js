@@ -6,6 +6,7 @@ import ejs from 'ejs'
 const app = express()
 const port = process.env.PORT || 3000
 app.use(express.static('public'))
+app.use('/ticket_img', express.static('ticket_img'))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.set('view engine', 'ejs')

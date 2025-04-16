@@ -205,7 +205,7 @@
                         <td style="width: 10%;"><%= ticketType.onTicket %></td>
                         <td style="width: 5%;"><%= ticketType.numberOfLines %></td>
                         <td style="width: 7%;"><%= ticketType.date %></td>
-                        <td style="width: 10%;"><img src="<%= ticketType.img %>" width="100%"></td>
+                        <td style="width: 10%;"><a href="/ticket_img/<%= ticketType.img %>" target="_blank"> <img src="/ticket_img/<%= ticketType.img %>" width="100%"></a></td>
                         <td style="width: 10%; word-break: break-all;"><%= ticketType.config %></td>
                         <td style="width: 28%;">
                             <iframe srcdoc="<%= ticketType.emailMessage %>" style="width: 100%; border: none;"></iframe>
