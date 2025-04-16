@@ -46,7 +46,8 @@ router.get('/users', async (req, res) => {
         ],
         users: rows,
         error: false,
-        success: false
+        success: false,
+        myId: req.session.user.id
     })
 })
 
@@ -76,7 +77,8 @@ router.post('/users', async (req, res) => {
             ],
             users: rows,
             success: 'User deleted successfully',
-            error: false
+            error: false,
+            myId: req.session.user.id
         })
     }
     else
@@ -91,7 +93,8 @@ router.post('/users', async (req, res) => {
             ],
             users: rows,
             eeror: 'Error: Unknown action',
-            success: false
+            success: false,
+            myId: req.session.user.id
         })
     }
     const [rows] = await con.execute('SELECT id, login, email, name, admin, lastLogin FROM user WHERE active = 1')
@@ -104,7 +107,8 @@ router.post('/users', async (req, res) => {
         ],
         users: rows,
         success: 'User added successfully',
-        error: false
+        error: false,
+        myId: req.session.user.id
     })
 })
 

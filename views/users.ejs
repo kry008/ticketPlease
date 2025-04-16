@@ -73,11 +73,15 @@
                             <td><%= user.admin ? 'Yes' : 'No' %></td>
                             <td><%= user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never' %></td>
                             <td>
+                                <% if (user.id != myId) { %>
                                 <form action="/panel/users" method="POST">
                                     <input type="hidden" name="id" value="<%= user.id %>">
                                     <input type="hidden" name="action" value="delete">
                                     <button type="submit">Delete</button>
                                 </form>
+                                <% } else { %>
+                                    <button disabled>It is my account</button>
+                                <% } %>
                             </td>
                         </tr>
                     <% }); %>

@@ -106,7 +106,7 @@ app.post('/panel/login', async (req, res) => {
 
   try {
     const [rows] = await con.execute(
-      'SELECT * FROM user WHERE login = ? AND pass = SHA1(?)',
+      'SELECT * FROM user WHERE login = ? AND pass = SHA1(?) AND active = 1',
       [login, password]
     );
 
