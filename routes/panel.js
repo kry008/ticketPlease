@@ -136,6 +136,7 @@ router.post('/ticketTypes', async (req, res) => {
         var nameShow = req.body.nameShow
         var dateShow = req.body.dateShow
         var color = req.body.color
+        var emailTitle = req.body.emailTitle
         if(dateFrom == dateTo)
         {
             var date = dateFrom;
@@ -159,7 +160,7 @@ router.post('/ticketTypes', async (req, res) => {
         //var config = req.body.config
         var emailMessage = req.body.emailMessage
         var whoAdded = req.session.user.id
-        await con.execute('INSERT INTO ticketTypes (name, onTicket, numberOfLines, date, img, config, emailMessage, whoAdded) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [name, onTicket, numberOfLines, date, img, config, emailMessage, whoAdded])
+        await con.execute('INSERT INTO ticketTypes (name, onTicket, numberOfLines, date, img, config, emailMessage, whoAdded, emailTitle) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, onTicket, numberOfLines, date, img, config, emailMessage, whoAdded, emailTitle])
     }
     else if(action == 'delete')
     {

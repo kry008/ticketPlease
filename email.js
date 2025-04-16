@@ -18,7 +18,7 @@ const connection = await mysql.createConnection({
 })
 
 
-async function generateTicketImage(img, name, id, pass, color, outputPath) {
+async function generateTicketImage(img, name, id, pass, color, ticketType, outputPath) {
   try {
     const baseImage = await loadImage(`ticket_img/${img}`)
     const width = 900
@@ -32,10 +32,13 @@ async function generateTicketImage(img, name, id, pass, color, outputPath) {
 
     // TXT
     ctx.fillStyle = color || '#000000'
-    ctx.font = '32px sans-serif'
+    ctx.font = '34px sans-serif'
     const text = name
     const textX = 20
-    const textY = height - 50
+    
+    var textY = height - 75
+    if(ticketType == "")
+      var textY = height - 40
     ctx.fillText(text, textX, textY)
     // QR Code 
     const qrBuffer = await QRCode.toBuffer(`ticket://${id}/?pass=${pass}`, {
@@ -44,9 +47,18 @@ async function generateTicketImage(img, name, id, pass, color, outputPath) {
       width: 150,
       margin: 1
     })
+    
+    if(ticketType != "")
+    {
+      const ticketTypeX = 20
+      const ticketTypeY = height - 25
+      ctx.font = '24px sans-serif'
+      ctx.fillStyle = color || '#000000'
+      ctx.fillText(ticketType, ticketTypeX, ticketTypeY)
+    }
     const qrImage = await loadImage(qrBuffer)
-    const qrSize = 150
-    const qrX = width - qrSize - 25
+    const qrSize = 160
+    const qrX = width - qrSize - 5
     const qrY = height - qrSize - 5
     ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize)
 
@@ -81,13 +93,18 @@ async function getSettings() {
   return settings
 }
 
-async function sendTestEmail(img, name, id, pass, color, email, html) {
-  //in html replace {{name}} with name
+async function sendEmail(img, name, id, pass, color, email, html, ticketType, date, nameShow, emailTitle) {
   html = html.replace(/{{name}}/g, name)
   html = html.replace(/{{id}}/g, id)
   html = html.replace(/{{pass}}/g, pass)
   html = html.replace(/{{color}}/g, color)
   html = html.replace(/{{email}}/g, email)
+  html = html.replace(/{{ticketType}}/g, ticketType)
+  emailTitle = emailTitle.replace(/{{name}}/g, name)
+  emailTitle = emailTitle.replace(/{{id}}/g, id)
+  if(nameShow == 0)
+    ticketType = ""
+  html = html.replace(/{{date}}/g, date)
   html = html.replace(/{{img}}/g, `<img src="cid:ticket" alt="Ticket" />`)
   try {
     const settings = await getSettings()
@@ -102,23 +119,19 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
       }
     })
 
-    const ticketPath = await generateTicketImage(img, name, id, pass, color, `ticket_img/out/${id}.png`)
+    const ticketPath = await generateTicketImage(img, name, id, pass, color, ticketType, `ticket_img/out/${id}.png`)
     const mailOptions = {
       from: `"${settings.smtpSendAs}" <${settings.smtpFromEmail}>`,
       to: email,
       bcc: settings.smtpBcc || undefined,
       replyTo: settings.smtpReplyTo || undefined,
-      subject: settings.smtpSubject || 'Your ticket',
+      subject: emailTitle || settings.smtpSubject || 'Your ticket',
       html: html,
       attachments: [
         {
-          filename: 'ticket.png',
+          filename: `${name} - ${id}.png`,
           path: ticketPath,
           cid: 'ticket'
-        },
-        {
-          filename: 'ticket.png',
-          path: ticketPath
         }
       ]
     }
@@ -135,7 +148,7 @@ async function sendTestEmail(img, name, id, pass, color, email, html) {
 async function sendTickets() {
   try {
 
-    const [rows] = await connection.execute('SELECT `tickets`.`id` AS id, `tickets`.`name` AS name, `tickets`.`email` as SendTo, `tickets`.`pass` as pass, `ticketTypes`.`img` as img, `ticketTypes`.`config` as config, `ticketTypes`.`emailMessage` as html FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.id AND tickets.emailSended IS NULL AND `tickets`.`active` = 1 ORDER BY id LIMIT 1;')
+    const [rows] = await connection.execute('SELECT `tickets`.`id` AS id, `tickets`.`name` AS name, `tickets`.`email` as SendTo, `tickets`.`pass` as pass, `ticketTypes`.`img` as img, `ticketTypes`.`emailTitle` as emailTitle, `ticketTypes`.`date` as date, `ticketTypes`.`name` as ticketType, `ticketTypes`.`config` as config, `ticketTypes`.`emailMessage` as html FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.id AND tickets.emailSended IS NULL AND `tickets`.`active` = 1 ORDER BY id LIMIT 1;')
 
     if (rows.length === 0) {
       console.log('No tickets to send')
@@ -143,9 +156,9 @@ async function sendTickets() {
     }
 
     for (const row of rows) {
-      const { id, name, SendTo, pass, img, config, html } = row
-      const { color } = JSON.parse(config)
-      await sendTestEmail(img, name, id, pass, color, SendTo, html)
+      const { id, name, SendTo, pass, img, config, html, ticketType, date, emailTitle } = row
+      const { color, nameShow } = JSON.parse(config)
+      await sendEmail(img, name, id, pass, color, SendTo, html, ticketType, date, nameShow, emailTitle)
       console.log('Ticket:', id, 'to', SendTo)
       await connection.execute('UPDATE `tickets` SET `emailSended` = NOW() WHERE `tickets`.`id` = ?', [id])
       console.log('Ticket updated:', id)
