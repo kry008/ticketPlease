@@ -1,7 +1,7 @@
 <%- include('./head'); %>
 <body>
 <%- include('./top'); %>
-<div id="content">
+<div id="content" style="width: 100%; max-width: calc(100vw - 40px); margin: 25px 10px;">
     <% if (error) { %>
             <div class="error">
                 <p><%= error %></p>
@@ -13,7 +13,7 @@
             </div>
     <% } %>
 
-    <div class="addForm">
+    <div class="addForm" style="margin: 0 25px;">
         <h2>Add new ticket type</h2>
         <form action="/panel/ticketTypes" method="POST">
             <input type="hidden" name="action" value="add">
@@ -200,15 +200,17 @@
             <tbody>
                 <% ticketTypes.forEach(function(ticketType) { %>
                     <tr>
-                        <td><%= ticketType.id %></td>
-                        <td><%= ticketType.name %></td>
-                        <td><%= ticketType.onTicket %></td>
-                        <td><%= ticketType.numberOfLines %></td>
-                        <td><%= ticketType.date %></td>
-                        <td><img src="<%= ticketType.img %>" width="200px"></td>
-                        <td><%= ticketType.config %></td>
-                        <td><%= ticketType.emailMessage %></td>
-                        <td>
+                        <td style="width: 5%;"><%= ticketType.id %></td>
+                        <td style="width: 10%;"><%= ticketType.name %></td>
+                        <td style="width: 10%;"><%= ticketType.onTicket %></td>
+                        <td style="width: 5%;"><%= ticketType.numberOfLines %></td>
+                        <td style="width: 7%;"><%= ticketType.date %></td>
+                        <td style="width: 10%;"><img src="<%= ticketType.img %>" width="100%"></td>
+                        <td style="width: 10%; word-break: break-all;"><%= ticketType.config %></td>
+                        <td style="width: 28%;">
+                            <iframe srcdoc="<%= ticketType.emailMessage %>" style="width: 100%; border: none;"></iframe>
+                        </td>
+                        <td style="width: 5%;">
                             <form action="/panel/ticketTypes" method="POST">
                                 <input type="hidden" name="id" value="<%= ticketType.id %>">
                                 <input type="hidden" name="action" value="delete">

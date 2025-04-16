@@ -119,7 +119,7 @@ async function sendEmail(img, name, id, pass, color, email, html, ticketType, da
       }
     })
 
-    const ticketPath = await generateTicketImage(img, name, id, pass, color, ticketType, `ticket_img/out/${id}.png`)
+    const ticketPath = await generateTicketImage(img, name, id, pass, color, ticketType, `out/${id}.png`)
     const mailOptions = {
       from: `"${settings.smtpSendAs}" <${settings.smtpFromEmail}>`,
       to: email,
