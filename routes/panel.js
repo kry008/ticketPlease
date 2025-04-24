@@ -428,7 +428,11 @@ router.post('/checkTicket', async (req, res) => {
         console.log('Rows:', rows);
         if(rows.length > 0)
         {
-            await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
+            const [existingCheck] = await con.execute('SELECT id FROM ticketCheck WHERE ticketId = ? AND userId = ? AND timestampdiff(SECOND, created_at, NOW()) < 30', [rows[0].idTicket, req.session.user.id])
+            if(existingCheck.length == 0) {
+                await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
+            }
+
             var notValidTicket = false
             if(rows[0].active == 0)
             {
