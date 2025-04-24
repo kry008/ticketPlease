@@ -42,7 +42,13 @@
                     </tr>
                     <tr>
                         <td>Check count:</td>
-                        <td><%= ticketInfo.checkCount %></td>
+                        <% if (ticketInfo.checkCount > 1) { %>
+                            <div class="error">
+                                <td><%= ticketInfo.checkCount %></td>
+                            </div>
+                        <% } else { %>
+                            <td><%= ticketInfo.checkCount %></td>
+                        <% } %>
                     </tr>
                 </table>
             </div>
