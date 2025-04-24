@@ -60,7 +60,10 @@ router.post('/checkTicket', async (req, res) => {
     console.log('Rows:', rows);
     if(rows.length > 0)
     {
-        await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.user])
+        const [existingCheck] = await con.execute('SELECT id FROM ticketCheck WHERE ticketId = ? AND userId = ? AND timestampdiff(SECOND, time, NOW()) < 15', [rows[0].idTicket, req.session.user.id])
+        if(existingCheck.length == 0) {
+            await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
+        }
         return res.status(200).json({ message: 'Ticket checked', data: rows[0] });
     }
     else
