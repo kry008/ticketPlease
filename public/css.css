@@ -11,7 +11,13 @@ body {
     flex-direction: column;
     align-items: center;
     margin-top: 60px;
+    /*background-color: #f4f4f4;*/
+    background: #333;
+}
+#full
+{
     background-color: #f4f4f4;
+    width: 100%;
 }
 .title
 {
@@ -107,6 +113,7 @@ nav.open {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-top: 80px;
     padding: 20px;
+    margin: 80px auto 0 auto;
 }
 
 /* Formularz */
