@@ -511,7 +511,7 @@ router.post('/checkTicketManual', async (req, res) => {
     {
         var id = req.body.id
         console.log('ID:', id)
-        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` AND `tickets`.id = ? GROUP BY `tickets`.`id`;", [id])
+        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` WHERE `tickets`.id = ? GROUP BY `tickets`.`id`;", [id])
         console.log('Rows:', rows);
         if(rows.length > 0)
         {
