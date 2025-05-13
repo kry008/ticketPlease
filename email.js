@@ -94,18 +94,18 @@ async function getSettings() {
 }
 
 async function sendEmail(img, name, id, pass, color, email, html, ticketType, date, nameShow, emailTitle) {
-  html = html.replace(/{{name}}/g, name)
-  html = html.replace(/{{id}}/g, id)
-  html = html.replace(/{{pass}}/g, pass)
+  html = html.replace(/>{{name}}</g, ">"+name+"<")
+  html = html.replace(/>{{id}}</g, ">"+id+"<")
+  html = html.replace(/>{{pass}}</g, ">"+pass+"<")
   html = html.replace(/{{color}}/g, color)
-  html = html.replace(/{{email}}/g, email)
-  html = html.replace(/{{ticketType}}/g, ticketType)
-  emailTitle = emailTitle.replace(/{{name}}/g, name)
-  emailTitle = emailTitle.replace(/{{id}}/g, id)
+  html = html.replace(/>{{email}}</g, ">"+email+"<")
+  html = html.replace(/>{{ticketType}}</g, ">"+ticketType+"<")
+  emailTitle = emailTitle.replace(/{{name}}</g, ">"+name+"<")
+  emailTitle = emailTitle.replace(/>{{id}}</g, ">"+id+"<")
   if(nameShow == 0)
     ticketType = ""
-  html = html.replace(/{{date}}/g, date)
-  html = html.replace(/{{img}}/g, `<img src="cid:ticket" alt="Ticket" />`)
+  html = html.replace(/>{{date}}</g, ">"+date+"<")
+  html = html.replace(/>{{img}}</g, `><img src="cid:ticket" alt="Ticket" /><`)
   try {
     const settings = await getSettings()
     //console.log('Settings:', settings)
