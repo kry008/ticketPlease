@@ -155,7 +155,10 @@ async function sendTickets() {
     const [rows] = await connection.execute('SELECT `tickets`.`id` AS id, `tickets`.`name` AS name, `tickets`.`email` as SendTo, `tickets`.`pass` as pass, `ticketTypes`.`img` as img, `ticketTypes`.`emailTitle` as emailTitle, `ticketTypes`.`date` as date, `ticketTypes`.`name` as ticketType, `ticketTypes`.`config` as config, `ticketTypes`.`emailMessage` as html FROM `tickets`, `ticketTypes` WHERE `tickets`.`type` = `ticketTypes`.id AND tickets.emailSended IS NULL AND `tickets`.`active` = 1 ORDER BY id LIMIT 1;')
 
     if (rows.length === 0) {
-      console.log('No tickets to send')
+      //DD/MM HH:MM:SS
+      var data = new Date()
+      var dataLog = data.getDay() + "/" + (data.getMonth() + 1) + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds()
+      console.log(`${dataLog}\tNo tickets to send`)
       return
     }
 
