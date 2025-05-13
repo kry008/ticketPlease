@@ -105,7 +105,7 @@ async function sendEmail(img, name, id, pass, color, email, html, ticketType, da
   if(nameShow == 0)
     ticketType = ""
   html = html.replace(/>{{date}}</g, ">"+date+"<")
-  html = html.replace(/>{{img}}</g, `><img src="cid:ticket" alt="Ticket" /><`)
+  html = html.replace(/>{{img}}</g, `><img src="cid:ticket" alt="Ticket" filename="${ticketType}${name}"/><`)
   try {
     const settings = await getSettings()
     //console.log('Settings:', settings)
@@ -132,6 +132,10 @@ async function sendEmail(img, name, id, pass, color, email, html, ticketType, da
           filename: `${name} - ${id}.png`,
           path: ticketPath,
           cid: 'ticket'
+        },
+        {
+          filename: `${name} - ${id}.png`,
+          path: ticketPath
         }
       ]
     }
