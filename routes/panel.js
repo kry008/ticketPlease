@@ -379,10 +379,8 @@ router.get('/checkTicket', async (req, res) => {
 })
 
 router.post('/checkTicket', async (req, res) => {
-    //req body action = check
-    if(req.body.action != 'check')
-    {
-        console.log('Unknown action:', req.body.action)
+    if (req.body.action !== 'check') {
+        console.log('Unknown action:', req.body.action);
         return res.render('checkTicket', {
             title: 'Check Ticket',
             siteName: req.siteName,
@@ -390,69 +388,101 @@ router.post('/checkTicket', async (req, res) => {
                 { name: 'home', url: '/' },
                 { name: 'panel', url: '/panel/dashboard', active: true }
             ],
-            user: req.session.user, 
+            user: req.session.user,
             error: 'Error: Unknown action',
             success: false,
             ticketInfo: false,
             notValidTicket: false
-        })
+        });
     }
-    else
-    {
-        //jeżeli nie znajdziesz na początku ticket:// oraz w środku ?pass= to nie jest ticket
-        if(!req.body.code.includes('ticket://') || !req.body.code.includes('?pass='))
-        {
-            return res.render('checkTicket', {
-                title: 'Check Ticket',
-                siteName: req.siteName,
-                menu: [
-                    { name: 'home', url: '/' },
-                    { name: 'panel', url: '/panel/dashboard', active: true }
-                ],
-                user: req.session.user,
-                error: 'Error: Invalid ticket',
-                success: false,
-                ticketInfo: false,
-                notValidTicket: false
-            })
 
-        }
-        //check if ticket is valid
-        var ticket = req.body.code
-        var pass = ticket.split('?pass=')[1]
-        var id = ticket.split('ticket://')[1].split('?pass=')[0]
-        console.log('Ticket:', ticket)
-        console.log('ID:', id)
-        console.log('Pass:', pass)
-        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` WHERE `tickets`.id = ? AND tickets.pass = ? GROUP BY `tickets`.`id`; ", [id, pass])
-        console.log('Rows:', rows);
-        if(rows.length > 0)
-        {
-            const [existingCheck] = await con.execute('SELECT id FROM ticketCheck WHERE ticketId = ? AND userId = ? AND timestampdiff(SECOND, time, NOW()) < 15', [rows[0].idTicket, req.session.user.id])
-            if(existingCheck.length == 0) {
-                await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
-            }
-
-            var notValidTicket = false
-            if(rows[0].active == 0)
-            {
-                var notValidTicket = true
-            }
-            return res.render('checkTicket', {
-                title: 'Check Ticket',
-                siteName: req.siteName,
-                menu: [
-                    { name: 'home', url: '/' },
-                    { name: 'panel', url: '/panel/dashboard', active: true }
-                ],
-                user: req.session.user, 
-                error: false,
-                success: false,
-                ticketInfo: rows[0],
-                notValidTicket: notValidTicket
-            })
-        }
+    // Sprawdzenie formatu biletu
+    if (!req.body.code.includes('ticket://') || !req.body.code.includes('?pass=')) {
+        return res.render('checkTicket', {
+            title: 'Check Ticket',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user,
+            error: 'Error: Invalid ticket',
+            success: false,
+            ticketInfo: false,
+            notValidTicket: false
+        });
     }
+
+    // Parsowanie ID i hasła
+    const ticket = req.body.code;
+    const pass = ticket.split('?pass=')[1];
+    const id = ticket.split('ticket://')[1].split('?pass=')[0];
+
+    console.log('Ticket:', ticket);
+    console.log('ID:', id);
+    console.log('Pass:', pass);
+
+    // Pobierz dane biletu (bez count)
+    const [ticketRows] = await con.execute(
+        `SELECT 
+            tickets.id AS idTicket,
+            tickets.name AS ticketHolder,
+            tickets.email AS email,
+            tickets.active AS active,
+            ticketTypes.name AS ticketType,
+            ticketTypes.date AS date
+        FROM tickets
+        JOIN ticketTypes ON tickets.type = ticketTypes.id
+        WHERE tickets.id = ? AND tickets.pass = ?`,
+        [id, pass]
+    );
+
+    if (ticketRows.length === 0) {
+        return res.render('checkTicket', {
+            title: 'Check Ticket',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user,
+            error: false,
+            success: false,
+            ticketInfo: false,
+            notValidTicket: true
+        });
+    }
+
+    const ticketInfo = ticketRows[0];
+
+    // Sprawdź, czy użytkownik już skanował ten bilet w ostatnich 15 sekundach
+    const [recentScan] = await con.execute(
+        `SELECT id FROM ticketCheck 
+         WHERE ticketId = ? AND userId = ? 
+         AND TIMESTAMPDIFF(SECOND, time, NOW()) < 15`,
+        [ticketInfo.idTicket, req.session.user.id]
+    );
+
+    // Jeśli nie skanował - dodaj wpis
+    if (recentScan.length === 0) {
+        await con.execute(
+            'INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)',
+            [ticketInfo.idTicket, req.session.user.id]
+        );
+    }
+
+    // Pobierz aktualną liczbę skanów (po ewentualnym INSERT)
+    const [checkCountResult] = await con.execute(
+        'SELECT COUNT(*) AS checkCount FROM ticketCheck WHERE ticketId = ?',
+        [ticketInfo.idTicket]
+    );
+
+    // Dodaj do obiektu
+    ticketInfo.checkCount = checkCountResult[0].checkCount;
+
+    // Sprawdzenie aktywności biletu
+    const notValidTicket = ticketInfo.active === 0;
+
     return res.render('checkTicket', {
         title: 'Check Ticket',
         siteName: req.siteName,
@@ -460,13 +490,14 @@ router.post('/checkTicket', async (req, res) => {
             { name: 'home', url: '/' },
             { name: 'panel', url: '/panel/dashboard', active: true }
         ],
-        user: req.session.user, 
+        user: req.session.user,
         error: false,
         success: false,
-        ticketInfo: false,
-        notValidTicket: true
-    })
-})
+        ticketInfo: ticketInfo,
+        notValidTicket: notValidTicket
+    });
+});
+
 
 router.get('/checkTicketManual', async (req, res) => {
     const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;"  )
