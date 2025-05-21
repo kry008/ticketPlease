@@ -518,7 +518,7 @@ router.get('/checkTicketManual', async (req, res) => {
     })
 })
 router.post('/checkTicketManual', async (req, res) => {
-    const action = req.body.action;
+        const action = req.body.action;
     const ticketId = req.body.id;
 
     if (action !== 'check') {
@@ -609,12 +609,8 @@ router.post('/checkTicketManual', async (req, res) => {
         ticket.checkCount = checkCountResult[0].checkCount;
         const notValidTicket = ticket.active === 0;
 
-        // Lista wszystkich biletów do tabeli z lewej
         const [ticketsRows] = await con.execute(
-            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
-                    tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
-             FROM tickets 
-             JOIN ticketTypes ON tickets.type = ticketTypes.id`
+            "SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;"
         );
 
         return res.render('checkTicketManual', {
@@ -627,7 +623,7 @@ router.post('/checkTicketManual', async (req, res) => {
             user: req.session.user,
             error: false,
             success: true,
-            ticketsRows,
+            ticketsRows: ticketsRows,
             ticketInfo: ticket,
             notValidTicket
         });
@@ -636,10 +632,7 @@ router.post('/checkTicketManual', async (req, res) => {
         console.error('checkTicketManual error:', err);
 
         const [ticketsRows] = await con.execute(
-            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
-                    tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
-             FROM tickets 
-             JOIN ticketTypes ON tickets.type = ticketTypes.id`
+            "SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;"
         );
 
         return res.render('checkTicketManual', {
@@ -652,7 +645,7 @@ router.post('/checkTicketManual', async (req, res) => {
             user: req.session.user,
             error: 'Unexpected error occurred',
             success: false,
-            ticketsRows,
+            ticketsRows: ticketsRows,
             ticketInfo: false,
             notValidTicket: false
         });
