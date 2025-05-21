@@ -517,12 +517,19 @@ router.get('/checkTicketManual', async (req, res) => {
 
     })
 })
-
 router.post('/checkTicketManual', async (req, res) => {
-    var action = req.body.action
-    if(action != 'check')
-    {
-        console.log('Unknown action:', action)
+    const action = req.body.action;
+    const ticketId = req.body.id;
+
+    if (action !== 'check') {
+        console.log('Unknown action:', action);
+        const [ticketsRows] = await con.execute(
+            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
+                    tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
+             FROM tickets 
+             JOIN ticketTypes ON tickets.type = ticketTypes.id`
+        );
+
         return res.render('checkTicketManual', {
             title: 'Check Ticket Manual',
             siteName: req.siteName,
@@ -530,29 +537,35 @@ router.post('/checkTicketManual', async (req, res) => {
                 { name: 'home', url: '/' },
                 { name: 'panel', url: '/panel/dashboard', active: true }
             ],
-            user: req.session.user, 
+            user: req.session.user,
             error: 'Error: Unknown action',
             success: false,
-            ticketsRows: rows,
+            ticketsRows,
             ticketInfo: false,
             notValidTicket: false
-        })
+        });
     }
-    else
-    {
-        var id = req.body.id
-        console.log('ID:', id)
-        const [rows] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` WHERE `tickets`.id = ? GROUP BY `tickets`.`id`;", [id])
-        console.log('Rows:', rows);
-        if(rows.length > 0)
-        {
-            await con.execute('INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)', [rows[0].idTicket, req.session.user.id])
-            var notValidTicket = false
-            if(rows[0].active == 0)
-            {
-                var notValidTicket = true
-            }
-            const [row] = await con.execute("SELECT `tickets`.`id` AS 'idTicket', `tickets`.`name` AS 'ticketHolder', `tickets`.`email` AS 'email', `tickets`.`active` AS 'active', `ticketTypes`.`name` AS 'ticketType', `ticketTypes`.`date` AS 'date', COUNT(`ticketCheck`.`id`) AS 'checkCount' FROM `tickets` JOIN `ticketTypes` ON `tickets`.`type` = `ticketTypes`.`id` LEFT JOIN `ticketCheck` ON `tickets`.`id` = `ticketCheck`.`ticketId` GROUP BY `tickets`.`id`;")
+
+    try {
+        console.log('Manual check - ID:', ticketId);
+
+        const [ticketRows] = await con.execute(
+            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, 
+                    tickets.email, tickets.active, ticketTypes.name AS ticketType, 
+                    ticketTypes.date 
+             FROM tickets 
+             JOIN ticketTypes ON tickets.type = ticketTypes.id 
+             WHERE tickets.id = ?`,
+            [ticketId]
+        );
+
+        if (ticketRows.length === 0) {
+            const [ticketsRows] = await con.execute(
+                `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
+                        tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
+                 FROM tickets 
+                 JOIN ticketTypes ON tickets.type = ticketTypes.id`
+            );
 
             return res.render('checkTicketManual', {
                 title: 'Check Ticket Manual',
@@ -561,16 +574,91 @@ router.post('/checkTicketManual', async (req, res) => {
                     { name: 'home', url: '/' },
                     { name: 'panel', url: '/panel/dashboard', active: true }
                 ],
-                user: req.session.user, 
-                error: false,
+                user: req.session.user,
+                error: 'Error: Ticket not found',
                 success: false,
-                ticketsRows: row,
-                ticketInfo: rows[0],
-                notValidTicket: notValidTicket
-            })
+                ticketsRows,
+                ticketInfo: false,
+                notValidTicket: true
+            });
         }
+
+        const ticket = ticketRows[0];
+
+        // Zabezpieczenie przed podwójnym skanowaniem
+        const [existingCheck] = await con.execute(
+            `SELECT id FROM ticketCheck 
+             WHERE ticketId = ? AND userId = ? 
+             AND TIMESTAMPDIFF(SECOND, time, NOW()) < 15`,
+            [ticket.idTicket, req.session.user.id]
+        );
+
+        if (existingCheck.length === 0) {
+            await con.execute(
+                'INSERT INTO ticketCheck (ticketId, userId) VALUES (?, ?)',
+                [ticket.idTicket, req.session.user.id]
+            );
+        }
+
+        // Pobranie aktualnej liczby skanów
+        const [checkCountResult] = await con.execute(
+            'SELECT COUNT(*) AS checkCount FROM ticketCheck WHERE ticketId = ?',
+            [ticket.idTicket]
+        );
+
+        ticket.checkCount = checkCountResult[0].checkCount;
+        const notValidTicket = ticket.active === 0;
+
+        // Lista wszystkich biletów do tabeli z lewej
+        const [ticketsRows] = await con.execute(
+            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
+                    tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
+             FROM tickets 
+             JOIN ticketTypes ON tickets.type = ticketTypes.id`
+        );
+
+        return res.render('checkTicketManual', {
+            title: 'Check Ticket Manual',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user,
+            error: false,
+            success: true,
+            ticketsRows,
+            ticketInfo: ticket,
+            notValidTicket
+        });
+
+    } catch (err) {
+        console.error('checkTicketManual error:', err);
+
+        const [ticketsRows] = await con.execute(
+            `SELECT tickets.id AS idTicket, tickets.name AS ticketHolder, tickets.email, 
+                    tickets.active, ticketTypes.name AS ticketType, ticketTypes.date 
+             FROM tickets 
+             JOIN ticketTypes ON tickets.type = ticketTypes.id`
+        );
+
+        return res.render('checkTicketManual', {
+            title: 'Check Ticket Manual',
+            siteName: req.siteName,
+            menu: [
+                { name: 'home', url: '/' },
+                { name: 'panel', url: '/panel/dashboard', active: true }
+            ],
+            user: req.session.user,
+            error: 'Unexpected error occurred',
+            success: false,
+            ticketsRows,
+            ticketInfo: false,
+            notValidTicket: false
+        });
     }
-})
+});
+
 
 router.get('/settings', async (req, res) => {
     const [rows] = await con.execute('SELECT * FROM settings')
